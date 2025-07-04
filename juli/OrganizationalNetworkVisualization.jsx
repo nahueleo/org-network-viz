@@ -33,6 +33,8 @@ import Avatar from '@mui/material/Avatar';
 import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
 
 const CANVAS_HEIGHTS = {
   desktop: 900,
@@ -71,6 +73,8 @@ export default function OrganizationalNetworkVisualization() {
   const [selectedRole, setSelectedRole] = useState(null);
   const [view, setView] = useState('network');
   const [openSidebar, setOpenSidebar] = useState(true);
+  const [listRoleFilter, setListRoleFilter] = useState('');
+  const [listProjectFilter, setListProjectFilter] = useState('');
 
   // Zoom y pan
   const canvasRef = useRef();
@@ -277,42 +281,79 @@ export default function OrganizationalNetworkVisualization() {
                     </Box>
                   )}
                   {view === 'list' && (
-                    <Grid container spacing={2}>
-                      {people.filter(p => visiblePeopleIds.includes(p.id)).map(person => {
-                        const personAssignments = assignments.filter(a => a.personId === person.id);
-                        const personProjects = personAssignments.map(a => projects.find(pr => pr.id === a.projectId)).filter(Boolean);
-                        const personRoles = personAssignments.map(a => roles.find(r => r.id === a.roleId)).filter(Boolean);
-                        return (
-                          <Grid item xs={12} sm={6} md={4} lg={3} key={person.id}>
-                            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
-                              <Avatar sx={{ bgcolor: person.color || 'primary.main', width: 56, height: 56, fontWeight: 700, fontSize: 24, mb: 1 }}>
-                                {person.name.split(' ').map(w => w[0]).join('')}
-                              </Avatar>
-                              <CardContent sx={{ textAlign: 'center', p: 1 }}>
-                                <div style={{ fontWeight: 700, fontSize: 18 }}>{person.name}</div>
-                                <Grid container spacing={0.5} justifyContent="center" sx={{ mt: 1, mb: 1 }}>
-                                  {personRoles.map((role, i) => (
-                                    <Grid item key={i}>
-                                      <Chip label={role.name} size="small" sx={{ bgcolor: role.color, color: '#fff', fontWeight: 600 }} />
-                                    </Grid>
-                                  ))}
-                                </Grid>
-                                <Grid container spacing={0.5} justifyContent="center">
-                                  {personProjects.map((prj, i) => (
-                                    <Grid item key={i}>
-                                      <Chip label={prj.name} size="small" sx={{ bgcolor: prj.color, color: '#fff', fontWeight: 600 }} />
-                                    </Grid>
-                                  ))}
-                                </Grid>
-                              </CardContent>
-                              <CardActions>
-                                <Button size="small" variant="outlined" onClick={() => setSelectedPerson(person.id)}>Ver más</Button>
-                              </CardActions>
-                            </Card>
-                          </Grid>
-                        );
-                      })}
-                    </Grid>
+                    <Box>
+                      {/* Filtros por rol y proyecto */}
+                      <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+                        <FormControl size="small" sx={{ minWidth: 160 }}>
+                          <InputLabel>Rol</InputLabel>
+                          <Select
+                            label="Rol"
+                            value={listRoleFilter || ''}
+                            onChange={e => setListRoleFilter(e.target.value)}
+                          >
+                            <MenuItem value=""><em>Todos los roles</em></MenuItem>
+                            {roles.map(r => <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>)}
+                          </Select>
+                        </FormControl>
+                        <FormControl size="small" sx={{ minWidth: 160 }}>
+                          <InputLabel>Proyecto</InputLabel>
+                          <Select
+                            label="Proyecto"
+                            value={listProjectFilter || ''}
+                            onChange={e => setListProjectFilter(e.target.value)}
+                          >
+                            <MenuItem value=""><em>Todos los proyectos</em></MenuItem>
+                            {projects.map(p => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                      <Grid container spacing={2} justifyContent="center" alignItems="stretch">
+                        {people
+                          .filter(p => visiblePeopleIds.includes(p.id))
+                          .filter(p => {
+                            if (listRoleFilter) {
+                              return assignments.some(a => a.personId === p.id && a.roleId === listRoleFilter);
+                            }
+                            return true;
+                          })
+                          .filter(p => {
+                            if (listProjectFilter) {
+                              return assignments.some(a => a.personId === p.id && a.projectId === listProjectFilter);
+                            }
+                            return true;
+                          })
+                          .map(person => {
+                            const personAssignments = assignments.filter(a => a.personId === person.id);
+                            const personProjects = personAssignments.map(a => projects.find(pr => pr.id === a.projectId)).filter(Boolean);
+                            const personRoles = personAssignments.map(a => roles.find(r => r.id === a.roleId)).filter(Boolean);
+                            return (
+                              <Grid item key={person.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: 280 }}>
+                                <Card sx={{ width: '100%', height: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
+                                  <Avatar sx={{ bgcolor: person.color || 'primary.main', width: 56, height: 56, fontWeight: 700, fontSize: 24, mb: 1 }}>
+                                    {person.name.split(' ').map(w => w[0]).join('')}
+                                  </Avatar>
+                                  <CardContent sx={{ textAlign: 'center', p: 1, flex: 1, width: '100%', minWidth: 0 }}>
+                                    <div style={{ fontWeight: 700, fontSize: 18 }}>{person.name}</div>
+                                    <Box sx={{ maxHeight: 48, overflowY: 'auto', width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', mt: 1, mb: 1 }}>
+                                      {personRoles.map((role, i) => (
+                                        <Chip key={i} label={role.name} size="small" sx={{ bgcolor: role.color, color: '#fff', fontWeight: 600, m: 0.25 }} />
+                                      ))}
+                                    </Box>
+                                    <Box sx={{ maxHeight: 48, overflowY: 'auto', width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                      {personProjects.map((prj, i) => (
+                                        <Chip key={i} label={prj.name} size="small" sx={{ bgcolor: prj.color, color: '#fff', fontWeight: 600, m: 0.25 }} />
+                                      ))}
+                                    </Box>
+                                  </CardContent>
+                                  <CardActions>
+                                    <Button size="small" variant="outlined" onClick={() => setSelectedPerson(person.id)}>Ver más</Button>
+                                  </CardActions>
+                                </Card>
+                              </Grid>
+                            );
+                          })}
+                      </Grid>
+                    </Box>
                   )}
                   {view === 'heatmap' && (
                     <HeatmapMatrix
