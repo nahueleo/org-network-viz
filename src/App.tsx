@@ -1,5 +1,5 @@
 // @ts-ignore
-import OrganizationalNetworkVisualization from '../OrganizationalNetworkVisualization';
+import OrganizationalNetworkVisualization from './components/OrganizationalNetworkVisualization';
 // import './App.css';
 
 function App() {
