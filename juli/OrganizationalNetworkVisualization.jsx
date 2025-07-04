@@ -13,6 +13,8 @@ import StatsPanel from './components/StatsPanel';
 import Controls from './components/Controls';
 import NetworkCanvas from './components/NetworkCanvas';
 import RolePanel from './components/RolePanel';
+import AdjacencyMatrix from './components/AdjacencyMatrix';
+import HeatmapMatrix from './components/HeatmapMatrix';
 // Material UI
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -20,6 +22,17 @@ import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
+import Drawer from '@mui/material/Drawer';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import Grid from '@mui/material/Grid';
+import Avatar from '@mui/material/Avatar';
+import Chip from '@mui/material/Chip';
+import Button from '@mui/material/Button';
+import CardActions from '@mui/material/CardActions';
 
 const CANVAS_HEIGHTS = {
   desktop: 900,
@@ -57,6 +70,7 @@ export default function OrganizationalNetworkVisualization() {
   const [selectedPeople, setSelectedPeople] = useState([]); // for people grid selection
   const [selectedRole, setSelectedRole] = useState(null);
   const [view, setView] = useState('network');
+  const [openSidebar, setOpenSidebar] = useState(true);
 
   // Zoom y pan
   const canvasRef = useRef();
@@ -207,135 +221,250 @@ export default function OrganizationalNetworkVisualization() {
               />
             </Box>
           </Box>
-          {/* Layout principal */}
-          <Box sx={{ display: { xs: 'block', md: 'flex' }, gap: 4, width: '100%' }}>
-            <Box flex={1} position="relative">
-              {/* Floating zoom controls + view selector */}
-              <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 10, display: 'flex', flexDirection: 'row', gap: 1, bgcolor: 'rgba(255,255,255,0.85)', borderRadius: 2, boxShadow: 2, p: 0.5, alignItems: 'center' }}>
-                <IconButton onClick={() => setZoom(z => Math.min(z * 1.2, 2.5))} color="primary" size="small"><ZoomIn size={20} /></IconButton>
-                <IconButton onClick={() => setZoom(z => Math.max(z * 0.8, 0.3))} color="primary" size="small"><ZoomOut size={20} /></IconButton>
-                <IconButton onClick={reset} color="primary" size="small"><RefreshCw size={20} /></IconButton>
-                <Select
-                  size="small"
-                  value={view}
-                  onChange={e => setView(e.target.value)}
-                  sx={{ ml: 1, minWidth: 120, fontWeight: 600 }}
-                >
-                  <MenuItem value="network">Red</MenuItem>
-                  <MenuItem value="adjacency">Matriz de adyacencia</MenuItem>
-                  <MenuItem value="list">Lista de personas</MenuItem>
-                  <MenuItem value="heatmap">Mapa de calor</MenuItem>
-                </Select>
-              </Box>
-              {view === 'network' && (
-                <NetworkCanvas
-                  canvasRef={canvasRef}
-                  canvasWidth={canvasWidth}
-                  canvasHeight={canvasHeight}
-                  offset={offset}
-                  zoom={zoom}
-                  draggedNode={draggedNode}
-                  nodePositions={nodePositions}
-                  projects={projects}
-                  hiddenProjects={hiddenProjects}
-                  visiblePeopleIds={visiblePeopleIds}
-                  generateOrganicPath={generateOrganicPath}
-                  getPersonProjects={getPersonProjects}
-                  connections={connections}
-                  setSelectedPerson={setSelectedPerson}
-                  setSelectedProject={setSelectedProject}
-                  handleNodeDrag={handleNodeDrag}
+          {/* Layout principal: Card gráfico a la izquierda, panel lateral a la derecha */}
+          <Box sx={{ display: { xs: 'block', md: 'flex' }, gap: 4, width: '100%', position: 'relative' }}>
+            {/* Card contenedor de gráficos (70% o 100% si sidebar cerrado) */}
+            <Box sx={{ flex: openSidebar && device === 'desktop' ? 7 : 1, minWidth: 0, transition: 'flex 0.3s' }}>
+              <Card sx={{ width: '100%', mb: 2, boxShadow: 3 }}>
+                <CardHeader
+                  title="Visualización de Red"
+                  action={
+                    <Select
+                      size="small"
+                      value={view}
+                      onChange={e => setView(e.target.value)}
+                      sx={{ minWidth: 160, fontWeight: 600 }}
+                    >
+                      <MenuItem value="network">Red</MenuItem>
+                      <MenuItem value="adjacency">Matriz de adyacencia</MenuItem>
+                      <MenuItem value="list">Lista de personas</MenuItem>
+                      <MenuItem value="heatmap">Mapa de calor</MenuItem>
+                    </Select>
+                  }
+                  sx={{ pb: 0, pt: 2, pl: 3, pr: 3 }}
                 />
-              )}
-              {view === 'adjacency' && (
-                <Box sx={{ p: 4, textAlign: 'center', color: '#888' }}>Matriz de adyacencia (próximamente)</Box>
-              )}
-              {view === 'list' && (
-                <Box sx={{ p: 4, textAlign: 'center', color: '#888' }}>Lista de personas con mini-grafos (próximamente)</Box>
-              )}
-              {view === 'heatmap' && (
-                <Box sx={{ p: 4, textAlign: 'center', color: '#888' }}>Mapa de calor de colaboración (próximamente)</Box>
-              )}
+                <CardContent sx={{ pt: 1 }}>
+                  {view === 'network' && (
+                    <NetworkCanvas
+                      canvasRef={canvasRef}
+                      canvasWidth={canvasWidth}
+                      canvasHeight={canvasHeight}
+                      offset={offset}
+                      zoom={zoom}
+                      draggedNode={draggedNode}
+                      nodePositions={nodePositions}
+                      projects={projects}
+                      hiddenProjects={hiddenProjects}
+                      visiblePeopleIds={visiblePeopleIds}
+                      generateOrganicPath={generateOrganicPath}
+                      getPersonProjects={getPersonProjects}
+                      connections={connections}
+                      setSelectedPerson={setSelectedPerson}
+                      setSelectedProject={setSelectedProject}
+                      handleNodeDrag={handleNodeDrag}
+                    />
+                  )}
+                  {view === 'adjacency' && (
+                    <Box sx={{ maxHeight: 600, overflow: 'auto', width: '100%' }}>
+                      <AdjacencyMatrix
+                        people={people}
+                        assignments={assignments}
+                        projects={projects}
+                        visiblePeopleIds={visiblePeopleIds}
+                        setSelectedPerson={setSelectedPerson}
+                        setSelectedProject={setSelectedProject}
+                      />
+                    </Box>
+                  )}
+                  {view === 'list' && (
+                    <Grid container spacing={2}>
+                      {people.filter(p => visiblePeopleIds.includes(p.id)).map(person => {
+                        const personAssignments = assignments.filter(a => a.personId === person.id);
+                        const personProjects = personAssignments.map(a => projects.find(pr => pr.id === a.projectId)).filter(Boolean);
+                        const personRoles = personAssignments.map(a => roles.find(r => r.id === a.roleId)).filter(Boolean);
+                        return (
+                          <Grid item xs={12} sm={6} md={4} lg={3} key={person.id}>
+                            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
+                              <Avatar sx={{ bgcolor: person.color || 'primary.main', width: 56, height: 56, fontWeight: 700, fontSize: 24, mb: 1 }}>
+                                {person.name.split(' ').map(w => w[0]).join('')}
+                              </Avatar>
+                              <CardContent sx={{ textAlign: 'center', p: 1 }}>
+                                <div style={{ fontWeight: 700, fontSize: 18 }}>{person.name}</div>
+                                <Grid container spacing={0.5} justifyContent="center" sx={{ mt: 1, mb: 1 }}>
+                                  {personRoles.map((role, i) => (
+                                    <Grid item key={i}>
+                                      <Chip label={role.name} size="small" sx={{ bgcolor: role.color, color: '#fff', fontWeight: 600 }} />
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                                <Grid container spacing={0.5} justifyContent="center">
+                                  {personProjects.map((prj, i) => (
+                                    <Grid item key={i}>
+                                      <Chip label={prj.name} size="small" sx={{ bgcolor: prj.color, color: '#fff', fontWeight: 600 }} />
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                              </CardContent>
+                              <CardActions>
+                                <Button size="small" variant="outlined" onClick={() => setSelectedPerson(person.id)}>Ver más</Button>
+                              </CardActions>
+                            </Card>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  )}
+                  {view === 'heatmap' && (
+                    <HeatmapMatrix
+                      people={people}
+                      assignments={assignments}
+                      projects={projects}
+                      visiblePeopleIds={visiblePeopleIds}
+                    />
+                  )}
+                </CardContent>
+              </Card>
             </Box>
-            {/* Panel lateral */}
-            {device === 'desktop' && (
-              <Box sx={{ width: 350, minWidth: 300, maxWidth: 400, ml: 2 }}>
-                {selectedPerson ? (
-                  <PersonPanel
-                    personId={selectedPerson}
-                    onClose={() => setSelectedPerson(null)}
-                    getPersonProjects={getPersonProjects}
-                    getPersonPeers={getPersonPeers}
-                    people={people}
-                    setSelectedPerson={setSelectedPerson}
-                    setSelectedProject={openProjectFromPerson}
-                    setSelectedRole={setSelectedRole}
-                  />
-                ) : selectedProject ? (
-                  <ProjectPanel
-                    projectId={selectedProject}
-                    onClose={() => setSelectedProject(null)}
-                    getProjectPersons={getProjectPersons}
-                    stats={stats}
-                    projects={projects}
-                    setSelectedPerson={setSelectedPerson}
-                    scrollToProject={scrollToProject}
-                    setSelectedRole={setSelectedRole}
-                  />
-                ) : selectedRole ? (
-                  <RolePanel
-                    roleName={selectedRole}
-                    onClose={() => setSelectedRole(null)}
-                    people={people}
-                    projects={projects}
-                    assignments={assignments}
-                    roles={roles}
-                    setSelectedPerson={setSelectedPerson}
-                    setSelectedProject={setSelectedProject}
-                  />
-                ) : null}
-              </Box>
+            {/* Sidebar colapsable en desktop, Drawer en mobile/tablet */}
+            {device === 'desktop' ? (
+              <>
+                <Box
+                  sx={{
+                    flex: 3,
+                    minWidth: 300,
+                    maxWidth: 400,
+                    ml: 2,
+                    mt: 0,
+                    height: '100%',
+                    position: 'relative',
+                    display: openSidebar ? 'block' : 'none',
+                    transition: 'all 0.3s',
+                  }}
+                >
+                  {selectedPerson ? (
+                    <PersonPanel
+                      personId={selectedPerson}
+                      onClose={() => setSelectedPerson(null)}
+                      getPersonProjects={getPersonProjects}
+                      getPersonPeers={getPersonPeers}
+                      people={people}
+                      setSelectedPerson={setSelectedPerson}
+                      setSelectedProject={openProjectFromPerson}
+                      setSelectedRole={setSelectedRole}
+                    />
+                  ) : selectedProject ? (
+                    <ProjectPanel
+                      projectId={selectedProject}
+                      onClose={() => setSelectedProject(null)}
+                      getProjectPersons={getProjectPersons}
+                      stats={stats}
+                      projects={projects}
+                      setSelectedPerson={setSelectedPerson}
+                      scrollToProject={scrollToProject}
+                      setSelectedRole={setSelectedRole}
+                    />
+                  ) : selectedRole ? (
+                    <RolePanel
+                      roleName={selectedRole}
+                      onClose={() => setSelectedRole(null)}
+                      people={people}
+                      projects={projects}
+                      assignments={assignments}
+                      roles={roles}
+                      setSelectedPerson={setSelectedPerson}
+                      setSelectedProject={setSelectedProject}
+                    />
+                  ) : null}
+                  {/* Botón para cerrar sidebar */}
+                  <IconButton
+                    onClick={() => setOpenSidebar(false)}
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      left: -36,
+                      bgcolor: 'background.paper',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      zIndex: 10,
+                      boxShadow: 2,
+                      '&:hover': { bgcolor: 'grey.100' },
+                    }}
+                  >
+                    <ChevronRightIcon />
+                  </IconButton>
+                </Box>
+                {/* Botón flotante para abrir sidebar */}
+                {!openSidebar && (
+                  <IconButton
+                    onClick={() => setOpenSidebar(true)}
+                    sx={{
+                      position: 'absolute',
+                      top: 24,
+                      right: -18,
+                      bgcolor: 'background.paper',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      zIndex: 20,
+                      boxShadow: 2,
+                      '&:hover': { bgcolor: 'grey.100' },
+                    }}
+                  >
+                    <ChevronLeftIcon />
+                  </IconButton>
+                )}
+              </>
+            ) : (
+              <Drawer
+                anchor="right"
+                open={openSidebar && (selectedPerson || selectedProject || selectedRole)}
+                onClose={() => setOpenSidebar(false)}
+                PaperProps={{ sx: { width: 340, maxWidth: '90vw', p: 0 } }}
+              >
+                <Box sx={{ position: 'relative', height: '100%' }}>
+                  <IconButton
+                    onClick={() => setOpenSidebar(false)}
+                    sx={{ position: 'absolute', top: 8, left: 8, zIndex: 10 }}
+                  >
+                    <ChevronRightIcon />
+                  </IconButton>
+                  {selectedPerson ? (
+                    <PersonPanel
+                      personId={selectedPerson}
+                      onClose={() => setSelectedPerson(null)}
+                      getPersonProjects={getPersonProjects}
+                      getPersonPeers={getPersonPeers}
+                      people={people}
+                      setSelectedPerson={setSelectedPerson}
+                      setSelectedProject={setSelectedProject}
+                      setSelectedRole={setSelectedRole}
+                    />
+                  ) : selectedProject ? (
+                    <ProjectPanel
+                      projectId={selectedProject}
+                      onClose={() => setSelectedProject(null)}
+                      getProjectPersons={getProjectPersons}
+                      stats={stats}
+                      projects={projects}
+                      setSelectedPerson={setSelectedPerson}
+                      scrollToProject={scrollToProject}
+                      setSelectedRole={setSelectedRole}
+                    />
+                  ) : selectedRole ? (
+                    <RolePanel
+                      roleName={selectedRole}
+                      onClose={() => setSelectedRole(null)}
+                      people={people}
+                      projects={projects}
+                      assignments={assignments}
+                      roles={roles}
+                      setSelectedPerson={setSelectedPerson}
+                      setSelectedProject={setSelectedProject}
+                    />
+                  ) : null}
+                </Box>
+              </Drawer>
             )}
           </Box>
-          {/* Panel detalles en tablet/mobile */}
-          {device !== 'desktop' && (
-            <Box width="100%" mt={2}>
-              {selectedPerson ? (
-                <PersonPanel
-                  personId={selectedPerson}
-                  onClose={() => setSelectedPerson(null)}
-                  getPersonProjects={getPersonProjects}
-                  getPersonPeers={getPersonPeers}
-                  people={people}
-                  setSelectedPerson={setSelectedPerson}
-                  setSelectedProject={setSelectedProject}
-                  setSelectedRole={setSelectedRole}
-                />
-              ) : selectedProject ? (
-                <ProjectPanel
-                  projectId={selectedProject}
-                  onClose={() => setSelectedProject(null)}
-                  getProjectPersons={getProjectPersons}
-                  stats={stats}
-                  projects={projects}
-                  setSelectedPerson={setSelectedPerson}
-                  scrollToProject={scrollToProject}
-                  setSelectedRole={setSelectedRole}
-                />
-              ) : selectedRole ? (
-                <RolePanel
-                  roleName={selectedRole}
-                  onClose={() => setSelectedRole(null)}
-                  people={people}
-                  projects={projects}
-                  assignments={assignments}
-                  roles={roles}
-                  setSelectedPerson={setSelectedPerson}
-                  setSelectedProject={setSelectedProject}
-                />
-              ) : null}
-            </Box>
-          )}
         </Paper>
       </Container>
     </Box>
