@@ -1,69 +1,65 @@
-# React + TypeScript + Vite
+# Visualización Organizacional
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Visualización interactiva de redes organizacionales construida con **React**, **Vite**, **Material UI**, **Tailwind** y **Lucide**.
 
-Currently, two official plugins are available:
+Permite explorar personas, proyectos y roles, con filtros avanzados, paneles contextuales y visualizaciones alternativas.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 Características principales
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Visualización de red con nodos interactivos (personas, proyectos, roles)
+- Paneles laterales para detalles de persona, proyecto y rol
+- Filtros por rol, proyecto, cantidad de conexiones, etc.
+- Zoom, pan y selector de visualización (red, matriz, lista, heatmap)
+- Tooltips modernos y avatares con iniciales
+- UI moderna y responsiva (MUI + Tailwind)
+- Código modular y fácil de extender
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## 📦 Instalación y uso local
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Clona el repo:
+   ```bash
+   git clone https://github.com/nahueleo/org-network-viz.git
+   cd org-network-viz
+   ```
+2. Instala dependencias:
+   ```bash
+   npm install
+   ```
+3. Corre en modo desarrollo (accesible en tu red):
+   ```bash
+   npm run dev -- --host
+   ```
+4. Abre en tu navegador:
+   - [http://localhost:5173](http://localhost:5173)
+   - O desde otra máquina: `http://IP_DE_TU_PC:5173`
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🌐 Deploy en Vercel o Netlify
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Sube el repo a GitHub.
+2. Ve a [vercel.com](https://vercel.com/) o [netlify.com](https://netlify.com/) y conecta tu repo.
+3. Elige framework **Vite** y deployea. ¡Listo!
+
+---
+
+## 📁 Estructura principal
+
+- `/juli/components/` — Componentes React (paneles, controles, visualización)
+- `/juli/data/` — Datos de personas, proyectos, roles, asignaciones
+- `/juli/utils/` — Utilidades de red y layout
+- `/juli/src/` — Entrypoint Vite/React
+
+---
+
+## ✨ Créditos y stack
+- React, Vite, Material UI, Tailwind, Lucide
+- Inspirado en mejores prácticas de visualización de redes y UX
+
+---
+
+**Hecho con ❤️ por [nahueleo](https://github.com/nahueleo)**
