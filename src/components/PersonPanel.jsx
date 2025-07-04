@@ -13,13 +13,12 @@ export default function PersonPanel({ personId, onClose, getPersonProjects, getP
   const projectsList = getPersonProjects(person.id);
   const peers = getPersonPeers(person.id);
   return (
-    <Paper elevation={3} sx={{ p: 3, borderRadius: 3, minHeight: 400, bgcolor: 'background.paper' }}>
+    <Paper elevation={3} sx={{ p: 3, borderRadius: 4, minHeight: 400, bgcolor: 'background.paper' }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
         <Stack direction="row" alignItems="center" gap={1}>
           <User style={{ color: '#3B82F6' }} />
           <Typography variant="h6" fontWeight={700}>{person.name}</Typography>
         </Stack>
-        <IconButton onClick={onClose} size="small"><X /></IconButton>
       </Stack>
       <Typography variant="body2" color="text.secondary" mb={2}>
         Email: <Box component="span" fontFamily="monospace">{person.name.toLowerCase().replace(/ /g, '.')}@org.com</Box>

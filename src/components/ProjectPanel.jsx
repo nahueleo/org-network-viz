@@ -18,13 +18,12 @@ export default function ProjectPanel({ projectId, onClose, getProjectPersons, st
   }));
   const extConnections = stats.externalConnections.find(e => e.projectId === project.id)?.external || 0;
   return (
-    <Paper elevation={3} sx={{ p: 3, borderRadius: 3, minHeight: 400, bgcolor: 'background.paper' }}>
+    <Paper elevation={3} sx={{ p: 3, borderRadius: 4, minHeight: 400, bgcolor: 'background.paper' }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
         <Stack direction="row" alignItems="center" gap={1}>
           <Layers style={{ color: project.color }} />
           <Typography variant="h6" fontWeight={700}>{project.name}</Typography>
         </Stack>
-        <IconButton onClick={onClose} size="small"><X /></IconButton>
       </Stack>
       <Typography variant="body2" color="text.secondary" mb={2}>{project.description}</Typography>
       <Divider sx={{ mb: 2 }} />

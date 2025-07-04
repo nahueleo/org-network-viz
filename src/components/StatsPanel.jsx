@@ -8,7 +8,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 
-export default function StatsPanel({ people, projects, stats, getProjectPersons }) {
+export default function StatsPanel({ people, projects, stats, getProjectPersons, onSelectProject }) {
   return (
     <Accordion defaultExpanded sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 2 }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -40,7 +40,28 @@ export default function StatsPanel({ people, projects, stats, getProjectPersons 
             </Stack>
             <Stack direction="row" flexWrap="wrap" gap={1} mt={1}>
               {projects.map(p => (
-                <Paper key={p.id} sx={{ px: 1.5, py: 0.5, borderRadius: 1, bgcolor: p.color, color: '#fff', fontSize: 13, display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                <Paper
+                  key={p.id}
+                  sx={{
+                    px: 1.5,
+                    py: 0.5,
+                    borderRadius: 1,
+                    bgcolor: p.color,
+                    color: '#fff',
+                    fontSize: 13,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    mb: 0.5,
+                    cursor: 'pointer',
+                    boxShadow: 1,
+                    transition: 'box-shadow 0.2s',
+                    '&:hover': { boxShadow: 4, opacity: 0.92 },
+                  }}
+                  onClick={() => onSelectProject && onSelectProject(p.id)}
+                  tabIndex={0}
+                  role="button"
+                >
                   {p.name} <span style={{ background: '#fff', color: '#222', borderRadius: 4, padding: '0 6px', marginLeft: 6 }}>{getProjectPersons(p.id).length}</span>
                 </Paper>
               ))}

@@ -13,12 +13,11 @@ export default function RolePanel({ roleName, onClose, people, projects, assignm
   const peopleWithRole = people.filter(p => assignments.some(a => a.personId === p.id && roles.find(r => r.id === a.roleId)?.name === roleName));
   const projectsWithRole = projects.filter(prj => assignments.some(a => a.projectId === prj.id && roles.find(r => r.id === a.roleId)?.name === roleName));
   return (
-    <Paper elevation={3} sx={{ p: 3, borderRadius: 3, minHeight: 300, bgcolor: 'background.paper' }}>
+    <Paper elevation={3} sx={{ p: 3, borderRadius: 4, minHeight: 300, bgcolor: 'background.paper' }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
         <Stack direction="row" alignItems="center" gap={1}>
           <Chip label={role.name} size="medium" sx={{ bgcolor: role.color, color: '#fff', fontWeight: 700, fontSize: 16, textTransform: 'uppercase', px: 2, py: 1 }} />
         </Stack>
-        <IconButton onClick={onClose} size="small"><X /></IconButton>
       </Stack>
       <Divider sx={{ mb: 2 }} />
       <Typography variant="subtitle2" fontWeight={600} mb={1}>Personas con este rol:</Typography>
